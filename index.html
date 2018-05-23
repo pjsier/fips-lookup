@@ -91,7 +91,7 @@
 
         input.addEventListener('input', function (e) {
             filteredResults = results.filter(function (r) {
-                return r.lower_name.indexOf(e.target.value) > -1;
+                return r.lower_name.indexOf(e.target.value.toLowerCase()) > -1;
             });
             resultList.innerHTML = filteredResults.slice(0, 250).map(listItem).join('');
         });
