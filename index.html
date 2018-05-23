@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FIPS Code Lookup Tool</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta description="Find the 2010 FIPS codes for states, counties, and cities.">
+    <meta description="Find the 2010 FIPS codes for states, counties, and cities">
     <style>
     body {
         margin: 0 auto;
@@ -53,8 +53,8 @@
     <h1>FIPS Code Lookup Tool</h1>
     <div class='container'>
         <div class='search-container'>
-            <label for='search'>Find the 2010 FIPS codes for states, counties, and cities.</label>
-            <input id='search' placeholder='Enter location name' />
+            <label for='search'>Find the 2010 FIPS codes for states, counties, and cities</label>
+            <input id='search' placeholder='Loading...' />
         </div>
         <div id='results'>
         </div>
@@ -66,6 +66,18 @@
         var DATA_URL = 'data/fips.csv';
         var results = [];
         var filteredResults = [];
+        var resultList = document.querySelector('#results');
+        var input = document.querySelector('#search');
+
+        function listItem(loc) {
+            return '<div class="row"><div><div class="name">' +
+                loc.name + '</div> <div class="fips">' +
+                loc.GEOID + '</div></div></div>';
+        }
+
+        function updateList(listResults) {
+            resultList.innerHTML = listResults.slice(0, 100).map(listItem).join('');
+        }
 
         var req = new XMLHttpRequest();
         req.open('GET', DATA_URL);
@@ -76,24 +88,16 @@
                         item.lower_name = item.name.toLowerCase();
                         return item;
                     });
+                updateList(results);
+                input.placeholder = 'Enter a location name';
             }
         }
         req.send();
 
-        var resultList = document.querySelector('#results');
-        var input = document.querySelector('#search');
-
-        function listItem(loc) {
-            return '<div class="row"><div><div class="name">' +
-                loc.name + '</div> <div class="fips">' +
-                loc.GEOID + '</div></div></div>';
-        }
-
         input.addEventListener('input', function (e) {
-            filteredResults = results.filter(function (r) {
+            updateList(results.filter(function (r) {
                 return r.lower_name.indexOf(e.target.value.toLowerCase()) > -1;
-            });
-            resultList.innerHTML = filteredResults.slice(0, 250).map(listItem).join('');
+            }));
         });
     }()
     </script>
