@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FIPS Code Lookup Tool</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta description="Find the 2010 FIPS codes for states, counties, and cities.">
+    <style>
+    body {
+        margin: 0 auto;
+        max-width: 760px;
+        color: #4a4a4a;
+        font-family: BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;
+        font-size: 16px;
+    }
+    h1 { text-align: center; }
+    label {
+        display: block;
+        margin-bottom: 15px;
+    }
+    .container { padding: 20px; }
+    .search-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 8px;
+    }
+    input {
+        border: none;
+        outline: none;
+        background-color: #ecf0f1;
+        padding: 10px;
+        color: #4a4a4a;
+        border: 0;
+        display: block;
+        font-size: 16px;
+    }
+    .row { padding: 4px; }
+    .row:nth-child(odd) { background-color: #f5f5f5; }
+    .row > div {
+        display: flex;
+        justify-content: space-between;
+        max-width: 350px;
+        margin: auto;
+        font-family: Geneva, Helvetica, sans-serif;
+    }
+    .name { margin-right: 16px; }
+    .fips { font-weight: bold; }
+    </style>
+    
+</head>
+<body>
+    <h1>FIPS Code Lookup Tool</h1>
+    <div class='container'>
+        <div class='search-container'>
+            <label for='search'>Find the 2010 FIPS codes for states, counties, and cities.</label>
+            <input id='search' placeholder='Enter location name' />
+        </div>
+        <div id='results'>
+        </div>
+    </div>
+    <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+    <script type='text/javascript'>
+    void function () {
+        'use strict';
+        var DATA_URL = 'data/fips.csv';
+        var results = [];
+        var filteredResults = [];
+
+        var req = new XMLHttpRequest();
+        req.open('GET', DATA_URL);
+        req.onload = function () {
+            if (req.status === 200) {
+                results = d3.csvParse(req.responseText)
+                    .map(function (item) {
+                        item.lower_name = item.name.toLowerCase();
+                        return item;
+                    });
+            }
+        }
+        req.send();
+
+        var resultList = document.querySelector('#results');
+        var input = document.querySelector('#search');
+
+        function listItem(loc) {
+            return '<div class="row"><div><div class="name">' +
+                loc.name + '</div> <div class="fips">' +
+                loc.GEOID + '</div></div></div>';
+        }
+
+        input.addEventListener('input', function (e) {
+            filteredResults = results.filter(function (r) {
+                return r.lower_name.indexOf(e.target.value) > -1;
+            });
+            resultList.innerHTML = filteredResults.slice(0, 250).map(listItem).join('');
+        });
+    }()
+    </script>
+</body>
+</html>
